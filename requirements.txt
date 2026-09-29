@@ -1,0 +1,7 @@
+pandas>=2.1
+numpy>=1.26
+statsmodels>=0.14
+yfinance>=0.2.40
+pyarrow>=14
+requests>=2.31
+pytest>=8
