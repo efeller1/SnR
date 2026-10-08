@@ -129,7 +129,7 @@ elif view == "Allocation":
     st.dataframe(pd.DataFrame({"base": base, "tilted": tilted, "change": tilted - base, "composite": comp})
                  .style.format({"base": "{:.1%}", "tilted": "{:.1%}", "change": "{:+.1%}", "composite": "{:.2f}"}),
                  width="stretch")
-    st.area_chart(h["allocation"].loc[:t])
+    st.area_chart(h["allocation"].loc[:t], stack=True)
 
 else:
     st.header("Change log")
