@@ -1,0 +1,32 @@
+# §6.1 example trend, loaded as given in SPEC.md. Judgment fields are Ethan's to set; every change
+# adds a dated entry to `history` (never edit past entries) and a line in config/changelog.yaml.
+id: ai_infrastructure
+name: AI infrastructure build-out
+driver: technology
+thesis: >
+  TODO(Ethan): one plain sentence on what changes and why it can't easily reverse.
+linked_premier_assets: [EQ, EN]
+durability:
+  horizon_years: 10
+  reversibility: 2
+  commitment: 5
+value_chain:
+  - node: semiconductors
+    bottleneck: false
+  - node: power_generation_and_grid
+    bottleneck: true
+  - node: data_centers
+    bottleneck: false
+capital_cycle_stage: expansion
+priced_in: 4
+vehicles:
+  - {type: bottleneck_owner, tickers: []}
+  - {type: second_order, tickers: []}
+kill_criteria:
+  - Hyperscaler capex guidance cut for 2 consecutive quarters
+  - Bottleneck lead times normalize (e.g., transformer lead times < 12 months)
+review_date: 2027-01-15
+history:
+  - date: 2026-10-08
+    scores: {durability: 4.5, cycle: 3, priced_in: 4}
+    note: Initial score (from SPEC.md §6.1 example).

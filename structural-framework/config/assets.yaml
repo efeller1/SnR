@@ -1,0 +1,214 @@
+# §4 metric definitions. Each metric = formula over input series + time-based transform steps + direction.
+#
+# series:   every data input, keyed by a short id. source: fred | prices | manual | shiller.
+#           freq sets the publication lag (config/scoring.yaml). vintage: first_release asks ALFRED for
+#           first-release values (needs FRED_API_KEY; otherwise latest values are used and flagged).
+# metrics:  formula is a Python expression over series ids (np.log etc. allowed as log, exp, abs).
+#           steps run in order, on the observation calendar. Operators are documented in src/sf/transforms.py.
+#           direction: 1 = higher is bullish, -1 = bearish. role: score (default) | diagnostic (displayed only).
+#           normalize: overrides the method in scoring.yaml (percentile | zscore | threshold | raw).
+
+series:
+  # --- FRED (IDs verified 2026-10-08, see docs/series_verification.md) ---
+  productivity:      {source: fred, id: OPHNFB, freq: quarterly, vintage: first_release}
+  cp:                {source: fred, id: CP, freq: quarterly, vintage: first_release}
+  gdp:               {source: fred, id: GDP, freq: quarterly, vintage: first_release}
+  real_gdp:          {source: fred, id: GDPC1, freq: quarterly, vintage: first_release}
+  real_10y:          {source: fred, id: DFII10, freq: daily}
+  us_2y:             {source: fred, id: DGS2, freq: daily}
+  us_10y:            {source: fred, id: DGS10, freq: daily}
+  fed_assets:        {source: fred, id: WALCL, freq: weekly, lag_days: 1}      # $ millions
+  tga:               {source: fred, id: WTREGEN, freq: weekly, lag_days: 1}    # $ millions
+  rrp:               {source: fred, id: RRPONTSYD, freq: daily, lag_days: 1}   # $ billions
+  fed_surplus_gdp:   {source: fred, id: FYFSGDA188S, freq: annual}
+  debt_gdp:          {source: fred, id: GFDEGDQ188S, freq: quarterly}
+  interest_outlays:  {source: fred, id: A091RC1Q027SBEA, freq: quarterly, vintage: first_release}
+  receipts:          {source: fred, id: W006RC1Q027SBEA, freq: quarterly, vintage: first_release}
+  debt_public:       {source: fred, id: FYGFDPUN, freq: quarterly}
+  m2:                {source: fred, id: M2SL, freq: monthly, vintage: first_release}
+  real_dollar:       {source: fred, id: RBUSBIS, freq: monthly}
+  broad_dollar:      {source: fred, id: DTWEXBGS, freq: daily}
+  core_pce:          {source: fred, id: PCEPILFE, freq: monthly, vintage: first_release}
+  cli:               {source: fred, id: USALOLITOAASTSAM, freq: monthly, vintage: first_release}
+  cpi:               {source: fred, id: CPIAUCSL, freq: monthly, vintage: first_release}
+  tbill_3m:          {source: fred, id: TB3MS, freq: monthly}
+  # --- Prices (yfinance; a CSV in data/manual/prices/<id>.csv takes precedence) ---
+  spx_tr:            {source: prices, id: "^SP500TR", freq: daily}
+  spy:               {source: prices, id: SPY, freq: daily}
+  rsp:               {source: prices, id: RSP, freq: daily}
+  gold:              {source: prices, id: "GC=F", freq: daily}    # front-month future as spot proxy (LBMA left FRED in 2022)
+  btc:               {source: prices, id: BTC-USD, freq: daily}
+  xle:               {source: prices, id: XLE, freq: daily}
+  wti:               {source: prices, id: "CL=F", freq: daily}
+  agg:               {source: prices, id: AGG, freq: daily}       # 60/40 benchmark bond leg
+  ltb_px:            {source: prices, id: VUSTX, freq: daily}     # control: long Treasuries
+  # --- Shiller (free download, monthly, ~1 month lag) ---
+  shiller_real_eps:  {source: shiller, id: real_earnings, freq: monthly}
+  shiller_cape:      {source: shiller, id: cape, freq: monthly}
+  # --- Manual / paid. CSV at data/manual/<id>.csv with columns date,value[,published] ---
+  net_equity_issuance:   {source: manual, id: net_equity_issuance, freq: monthly}
+  margin_debt:           {source: manual, id: margin_debt, freq: monthly}          # FINRA
+  forward_eps_yield:     {source: manual, id: forward_eps_yield, freq: daily}      # S&P fwd E/P, %
+  global_liquidity:      {source: manual, id: global_liquidity, freq: monthly}     # Ethan's index (M7)
+  top10_weight:          {source: manual, id: top10_weight, freq: monthly}
+  pct_above_200d:        {source: manual, id: pct_above_200d, freq: daily}
+  cb_gold_purchases:     {source: manual, id: cb_gold_purchases, freq: quarterly}  # WGC, tonnes per quarter
+  gold_aisc_margin:      {source: manual, id: gold_aisc_margin, freq: quarterly}
+  gold_etf_tonnes:       {source: manual, id: gold_etf_tonnes, freq: monthly}      # WGC
+  cot_gold_mm:           {source: manual, id: cot_gold_mm, freq: weekly, lag_days: 3}   # CFTC (Tue data, Fri release)
+  btc_hashrate:          {source: manual, id: btc_hashrate, freq: daily}
+  btc_active_addresses:  {source: manual, id: btc_active_addresses, freq: daily}
+  btc_etf_share:         {source: manual, id: btc_etf_share, freq: daily}
+  btc_mvrv_z:            {source: manual, id: btc_mvrv_z, freq: daily}             # Glassnode / CoinMetrics (paid)
+  btc_etf_flows:         {source: manual, id: btc_etf_flows, freq: daily}          # Farside, $m per day
+  stablecoin_supply:     {source: manual, id: stablecoin_supply, freq: daily}      # DefiLlama
+  us_power_consumption:  {source: manual, id: us_power_consumption, freq: monthly, lag_months: 2}  # EIA
+  world_oil_gas_demand:  {source: manual, id: world_oil_gas_demand, freq: annual}  # EIA / IEA / Energy Institute
+  en_capex_depr:         {source: manual, id: en_capex_depr, freq: quarterly}
+  rig_count:             {source: manual, id: rig_count, freq: weekly}             # Baker Hughes, Friday release
+  crude_stocks_ex_spr:   {source: manual, id: crude_stocks_ex_spr, freq: weekly, lag_days: 5}  # EIA WCESTUS1 (not on FRED)
+  wti_curve_spread:      {source: manual, id: wti_curve_spread, freq: daily}
+  en_fcf_yield:          {source: manual, id: en_fcf_yield, freq: monthly}          # Zacks data
+  en_rel_pe:             {source: manual, id: en_rel_pe, freq: monthly}             # Zacks data
+  cot_crude_mm:          {source: manual, id: cot_crude_mm, freq: weekly, lag_days: 3}
+  usd_reserve_share:     {source: manual, id: usd_reserve_share, freq: quarterly, lag_months: 3}  # IMF COFER
+  usd_swift_share:       {source: manual, id: usd_swift_share, freq: monthly}
+  foreign_ust_share:     {source: manual, id: foreign_ust_share, freq: monthly, lag_months: 2}    # Treasury TIC
+  g10_2y:                {source: manual, id: g10_2y, freq: daily}
+  tic_lt_flows:          {source: manual, id: tic_lt_flows, freq: monthly, lag_months: 2}
+  cot_usd:               {source: manual, id: cot_usd, freq: weekly, lag_days: 3}
+  ism_new_orders:        {source: manual, id: ism_new_orders, freq: monthly, lag_months: 0}
+
+assets:
+  EQ:
+    name: Equities
+    group: premier
+    price: spx_tr
+    thesis: >
+      Equities are the claim on long-run human economic growth, driven by population, productivity,
+      and innovation.
+    breaks_if: [Growth stalls permanently, Profits lose share to labor or the state for a long period]
+    metrics:
+      - {id: eq_real_eps_growth, name: Real earnings growth, component: STR, formula: shiller_real_eps, steps: [{op: cagr, years: 5}], direction: 1}
+      - {id: eq_productivity, name: Labor productivity, component: STR, formula: productivity, steps: [{op: pct_change, months: 12}, {op: rolling_mean, years: 5}], direction: 1}
+      - {id: eq_profit_share, name: Profit share, component: STR, formula: cp / gdp, direction: 1}
+      - {id: eq_net_issuance, name: Net equity supply, component: CAP, formula: net_equity_issuance, direction: -1}
+      - {id: eq_margin_debt, name: Margin debt YoY, component: CAP, formula: margin_debt, steps: [{op: pct_change, months: 12}], direction: -1}
+      - {id: eq_cape, name: CAPE, component: VAL, formula: shiller_cape, direction: -1}
+      - {id: eq_erp, name: Equity risk premium, component: VAL, formula: forward_eps_yield - real_10y, direction: 1}
+      - {id: eq_global_liq, name: Global liquidity 6m change, component: LIQ, formula: global_liquidity, steps: [{op: pct_change, months: 6}], direction: 1}
+      - {id: eq_fed_net_liq, name: Fed net liquidity 13w change, component: LIQ, formula: fed_assets - tga - rrp * 1000, steps: [{op: diff, weeks: 13}], direction: 1}
+      - {id: eq_mom, name: 12-1 month return, component: MOM, formula: spx_tr, steps: [{op: mom_12_1}], direction: 1}
+      - {id: eq_trend, name: Price / 200DMA, component: MOM, formula: spx_tr, steps: [{op: ma_ratio, obs: 200}], direction: 1}
+      - {id: eq_top10, name: Top-10 weight in S&P 500, role: diagnostic, formula: top10_weight, direction: -1}
+      - {id: eq_breadth, name: "% of S&P above 200DMA", role: diagnostic, formula: pct_above_200d, direction: 1}
+      - {id: eq_rsp_spy, name: RSP / SPY, role: diagnostic, formula: rsp / spy, direction: 1}
+
+  AU:
+    name: Gold
+    group: premier
+    price: gold
+    thesis: >
+      Fiat currencies lose purchasing power over time because governments choose debasement over default.
+    breaks_if: [Real interest rates stay high for years alongside genuine fiscal restraint]
+    metrics:
+      - {id: au_deficit, name: Fiscal deficit % GDP, component: STR, formula: -fed_surplus_gdp, direction: 1}
+      - {id: au_debt, name: Federal debt % GDP, component: STR, formula: debt_gdp, direction: 1}
+      - {id: au_interest, name: Interest outlays / receipts, component: STR, formula: interest_outlays / receipts, direction: 1}
+      - {id: au_cb_demand, name: Central bank net purchases (4Q), component: STR, formula: cb_gold_purchases, steps: [{op: rolling_sum, months: 12}], direction: 1}
+      - {id: au_mine_margin, name: Price - AISC margin, component: CAP, formula: gold_aisc_margin, direction: -1}
+      - {id: au_gold_m2, name: Gold / M2, component: VAL, formula: gold / m2, direction: -1}
+      - {id: au_realyield_resid, name: Real-yield residual z, component: VAL, formula: log(gold), steps: [{op: rolling_residual, x: real_10y, years: 10}], direction: -1, gate: {metric: au_realyield_r2, min: 0.2}}
+      - {id: au_realyield_r2, name: Real-yield regression R², role: diagnostic, formula: log(gold), steps: [{op: rolling_r2, x: real_10y, years: 10}], direction: 1, normalize: raw}
+      - {id: au_etf_flows, name: ETF holdings 3m change, component: LIQ, formula: gold_etf_tonnes, steps: [{op: diff, months: 3}], direction: 1}
+      - {id: au_positioning, name: COT managed money net long, component: LIQ, formula: cot_gold_mm, direction: -1}
+      - {id: au_mom, name: 12-1 month return, component: MOM, formula: gold, steps: [{op: mom_12_1}], direction: 1}
+      - {id: au_trend, name: Price / 200DMA, component: MOM, formula: gold, steps: [{op: ma_ratio, obs: 200}], direction: 1}
+
+  BTC:
+    name: Bitcoin
+    group: premier
+    price: btc
+    thesis: >
+      Digital scarcity with a fixed supply, plus a growing network and institutional adoption.
+    breaks_if: [Regulatory ban in a major market, Technical or security failure, Adoption stalls]
+    halving:
+      dates: [2012-11-28, 2016-07-09, 2020-05-11, 2024-04-20]
+      # §4.3 prior, to be validated: [start_day, end_day, score_at_start, score_at_end]
+      phases:
+        - [0, 365, 4, 4]
+        - [366, 550, 2, 2]
+        - [551, 900, 2, 4]
+        - [901, 100000, 4, 4]
+    metrics:
+      - {id: btc_hashrate, name: Hash rate 1y growth, component: STR, formula: btc_hashrate, steps: [{op: pct_change, months: 12}], direction: 1}
+      - {id: btc_addresses, name: Active addresses 1y growth, component: STR, formula: btc_active_addresses, steps: [{op: rolling_mean, days: 30}, {op: pct_change, months: 12}], direction: 1}
+      - {id: btc_etf_share, name: Spot ETF % of supply, component: STR, formula: btc_etf_share, direction: 1}
+      - {id: btc_halving, name: Halving cycle phase, component: CAP, formula: btc, steps: [{op: halving_phase}], direction: 1, normalize: raw}
+      - {id: btc_mvrv, name: MVRV z-score, component: VAL, formula: btc_mvrv_z, direction: -1}
+      - {id: btc_200w, name: Price / 200-week MA, component: VAL, formula: btc, steps: [{op: ma_ratio, days: 1400}], direction: -1}
+      - {id: btc_etf_flows, name: ETF net flows 20d, component: LIQ, formula: btc_etf_flows, steps: [{op: rolling_sum, days: 28}], direction: 1}
+      - {id: btc_stablecoins, name: Stablecoin supply 3m change, component: LIQ, formula: stablecoin_supply, steps: [{op: pct_change, months: 3}], direction: 1}
+      - {id: btc_global_liq, name: Global liquidity 6m change, component: LIQ, formula: global_liquidity, steps: [{op: pct_change, months: 6}], direction: 1}
+      - {id: btc_mom, name: 12-1 month return, component: MOM, formula: btc, steps: [{op: mom_12_1}], direction: 1}
+      - {id: btc_trend, name: Price / 200DMA, component: MOM, formula: btc, steps: [{op: ma_ratio, obs: 200}], direction: 1}
+
+  EN:
+    name: Energy
+    group: premier
+    price: xle
+    thesis: >
+      Energy is the base input to all economic output; demand is rising while supply has been underinvested.
+    breaks_if: [Demand collapses, Step-change in efficiency or supply technology]
+    component_weights: {STR: 0.10, CAP: 0.25}   # §4.4: CAP raised to 0.25, taken from STR
+    metrics:
+      - {id: en_power, name: US power demand 3y CAGR, component: STR, formula: us_power_consumption, steps: [{op: rolling_sum, months: 12}, {op: cagr, years: 3}], direction: 1}
+      - {id: en_global, name: World oil + gas demand 3y CAGR, component: STR, formula: world_oil_gas_demand, steps: [{op: cagr, years: 3}], direction: 1}
+      - {id: en_reinvest, name: Capex / depreciation, component: CAP, formula: en_capex_depr, direction: -1}
+      - {id: en_rigs, name: Rig count YoY, component: CAP, formula: rig_count, steps: [{op: pct_change, months: 12}], direction: -1}
+      - {id: en_inventories, name: Crude stocks vs 5y seasonal, component: CAP, formula: crude_stocks_ex_spr, steps: [{op: seasonal_deviation, years: 5}], direction: -1}
+      - {id: en_curve, name: WTI 1-12 spread, component: CAP, formula: wti_curve_spread, direction: 1}
+      - {id: en_fcf, name: Sector FCF yield, component: VAL, formula: en_fcf_yield, direction: 1}
+      - {id: en_rel_pe, name: XLE fwd P/E ÷ S&P fwd P/E, component: VAL, formula: en_rel_pe, direction: -1}
+      - {id: en_positioning, name: COT crude managed money, component: LIQ, formula: cot_crude_mm, direction: -1}
+      - {id: en_rel_mom, name: XLE/SPY 12-1, component: MOM, formula: xle / spy, steps: [{op: mom_12_1}], direction: 1}
+      - {id: en_wti_mom, name: WTI 12-1, component: MOM, formula: wti, steps: [{op: mom_12_1}], direction: 1}
+
+  USD:
+    name: US dollar (USD_FIAT)
+    group: premier
+    price: broad_dollar
+    thesis: >
+      The dollar is the global network: debt, trade, and reserves run on it.
+    breaks_if: [A credible alternative settlement system gains real share, US abuses dollar access badly enough to push others to a substitute]
+    metrics:
+      - {id: usd_reserve, name: Reserve share, component: STR, formula: usd_reserve_share, direction: 1}
+      - {id: usd_swift, name: SWIFT payments share, component: STR, formula: usd_swift_share, direction: 1}
+      - {id: usd_foreign_ust, name: Foreign % of marketable UST, component: STR, formula: foreign_ust_share, direction: 1}
+      - {id: usd_real_fx, name: Real broad dollar vs 20y avg, component: VAL, formula: real_dollar, steps: [{op: deviation_from_mean, years: 20}], direction: -1}
+      - {id: usd_rate_diff, name: US 2y - G10 2y, component: CAP, formula: us_2y - g10_2y, direction: 1}
+      - {id: usd_tic, name: TIC net LT inflows 3m, component: LIQ, formula: tic_lt_flows, steps: [{op: rolling_sum, months: 3}], direction: 1}
+      - {id: usd_positioning, name: COT USD net long, component: LIQ, formula: cot_usd, direction: -1}
+      - {id: usd_mom, name: Broad dollar 12-1, component: MOM, formula: broad_dollar, steps: [{op: mom_12_1}], direction: 1}
+      # USD_HARD panel: displayed, not scored
+      - {id: usd_hard_gold, name: USD vs gold (1/gold), role: diagnostic, formula: 1 / gold, steps: [{op: pct_change, months: 12}], direction: 1, normalize: raw}
+      - {id: usd_hard_btc, name: USD vs BTC (1/BTC), role: diagnostic, formula: 1 / btc, steps: [{op: pct_change, months: 12}], direction: 1, normalize: raw}
+      - {id: usd_debasement_pace, name: M2 growth - real GDP growth, role: diagnostic, formula: m2, steps: [{op: pct_change, months: 12}, {op: minus_series, formula: real_gdp, steps: [{op: pct_change, months: 12}]}], direction: -1, normalize: raw}
+
+  # §14 control assets: scored with the same engine; zero allocation weight. Remaining controls in config/controls.yaml.
+  LTB:
+    name: Long-dated Treasuries (control)
+    group: control
+    price: ltb_px
+    metrics:
+      - {id: ltb_debt, name: Federal debt % GDP, component: STR, formula: debt_gdp, direction: -1}
+      - {id: ltb_interest, name: Interest outlays / receipts, component: STR, formula: interest_outlays / receipts, direction: -1}
+      - {id: ltb_real_yield, name: 10y real yield, component: VAL, formula: real_10y, direction: 1}
+      - {id: ltb_mom, name: 12-1 month return, component: MOM, formula: ltb_px, steps: [{op: mom_12_1}], direction: 1}
+  CASH:
+    name: T-bills, real (control)
+    group: control
+    price: null
+    metrics:
+      - {id: cash_real_rate, name: T-bill minus CPI YoY, component: VAL, formula: tbill_3m, steps: [{op: minus_series, formula: cpi, steps: [{op: pct_change, months: 12}, {op: scale, factor: 100}]}], direction: 1}
+      - {id: cash_debasement, name: M2 YoY, component: STR, formula: m2, steps: [{op: pct_change, months: 12}], direction: -1}

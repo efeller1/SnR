@@ -1,0 +1,14 @@
+{
+  "share_months_controls_below":0.6428571429,
+  "passes_score_test":false,
+  "forward_real_returns":{
+    "BTC":21.1065126943,
+    "EQ":0.6634155185,
+    "EN":0.2434749713,
+    "AU":0.2228997407,
+    "USD":-0.0178505942,
+    "LTB":-0.03658646,
+    "CASH":-0.0668441644
+  },
+  "passes_return_test":true
+}

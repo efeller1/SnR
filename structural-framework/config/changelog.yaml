@@ -1,0 +1,23 @@
+# §7.1 view 6: every config change and judgment score, with date and reason. Append only.
+- date: 2026-10-08
+  who: Claude Code
+  change: Initial config from SPEC.md v0.2 (all spec defaults).
+  reason: M1-M6 build.
+- date: 2026-10-08
+  who: Claude Code
+  change: >
+    Filled spec gaps with stated defaults (annual publication lag 6m, staleness limits, Easy real-rate
+    level 0.5%, global-order threshold 3.0, Balanced FDI band, composite missing-weight rule, OOS split).
+  reason: The spec is silent; see docs/spec_gaps.md. All are config values awaiting Ethan's review.
+- date: 2026-10-08
+  who: Claude Code
+  change: OECD CLI series set to USALOLITOAASTSAM; USALOLITONOSTSAM stopped updating in 2024-01.
+  reason: Build-time series verification (docs/series_verification.md).
+- date: 2026-10-08
+  who: Claude Code
+  change: Crude stocks ex-SPR (WCESTUS1) moved to a manual EIA source.
+  reason: WCESTUS1 is an EIA series ID and is not on FRED.
+- date: 2026-10-08
+  who: Spec (§6.1 example)
+  change: "Trend ai_infrastructure loaded: durability 4.5, cycle 3, priced_in 4."
+  reason: Initial score from SPEC.md.

@@ -1,0 +1,49 @@
+# §3 scoring methodology. Every value here is a spec default unless noted in docs/spec_gaps.md.
+calendar: ME                 # scoring calendar: ME = month-end, W-FRI = weekly (L5 cadence)
+
+publication_lag_months:      # §3.1 step 1
+  daily: 0                   # market data
+  weekly: 0
+  monthly: 1
+  quarterly: 2
+  annual: 6                  # spec gap: annual fiscal data, see docs/spec_gaps.md
+
+stale_after_days:            # spec gap: a value older than this (since publication) counts as missing
+  daily: 10
+  weekly: 21
+  monthly: 70
+  quarterly: 190
+  annual: 550
+
+normalization:
+  method: percentile         # percentile | zscore | threshold | fixed (per-metric override allowed)
+  window_years: 10
+  min_years: 5
+  zscore_clip: 2.0
+
+asset_overrides:             # §3.1 step 2: Bitcoin uses a 4-year window with a 2-year minimum
+  BTC: {window_years: 4, min_years: 2}
+
+aggregation:
+  max_missing_share: 0.5     # component is NA if more than 50% of its metrics are missing
+  composite_max_missing_weight: 0.5   # spec gap: composite is NA if more than 50% of component weight is missing
+
+component_weights:           # §3.3
+  STR: 0.20
+  REG: 0.20
+  CAP: 0.15
+  VAL: 0.15
+  LIQ: 0.15
+  MOM: 0.15
+
+stance:                      # §3.4
+  overweight: 3.6
+  underweight: 2.4
+  hysteresis: 0.1
+  structural_gate: 2.5       # STR below this caps the stance at Neutral
+  momentum_veto: false       # open decision #2
+  momentum_veto_level: 1.5
+
+trend_overlay:               # §6.2: off until validated
+  enabled: false
+  weight_within_str: 0.25

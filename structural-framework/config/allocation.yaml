@@ -1,0 +1,16 @@
+# §3.5 model allocation. Placeholders for testing, not a recommendation (open decision #1).
+base_weights:
+  EQ: 0.40
+  AU: 0.15
+  BTC: 0.05
+  EN: 0.10
+  USD: 0.30                  # USD cash / T-bills sleeve
+k: 0.5
+clip_low: 0.5                # w_i >= clip_low * b_i
+clip_high: 1.5               # w_i <= clip_high * b_i
+vol_target:
+  enabled: false
+  annual_vol: 0.10
+  ewma_span_days: 60
+  max_leverage: 1.0          # spec gap: never lever above 100%; the remainder goes to cash
+transaction_cost_bps: 10     # §9.3

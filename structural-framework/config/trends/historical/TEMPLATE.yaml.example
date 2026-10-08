@@ -1,0 +1,33 @@
+# §16.3 replay file. Copy to <replay_id>.yaml. Score each cutoff date using ONLY sources available on
+# that date (contemporary newspapers, company reports, first-published data) and cite them in
+# reports/replays/<replay_id>.md. Fill `outcome` and `framework_grade` only after scoring every cutoff.
+id: fiber_internet
+name: Internet and fiber build-out
+driver: technology
+thesis: >
+  As written at the first cutoff date, not with hindsight.
+linked_premier_assets: [EQ]
+period: [1995, 2002]
+information_cutoff_dates: [1996-12-31, 1998-12-31, 2000-03-31]
+durability: {horizon_years: 10, reversibility: 2, commitment: 4}
+value_chain:
+  - {node: fiber_and_carriers, bottleneck: false}
+  - {node: equipment, bottleneck: false}
+  - {node: users_and_platforms, bottleneck: false}
+capital_cycle_stage: expansion          # stage as of the latest cutoff
+priced_in: 3
+kill_criteria: []
+history:                                # one entry per cutoff date, with sources
+  - date: 1996-12-31
+    durability: {horizon_years: 10, reversibility: 2, commitment: 3}
+    capital_cycle_stage: early_scarcity
+    priced_in: 2
+    note: "Sources: ..."
+outcome:
+  real_economic_impact: ""
+  returns_by_node: {}
+  who_captured_profits: ""
+framework_grade:
+  opportunity_fell_before_bust: null    # true | false
+  bottleneck_call_correct: null
+  notes: ""

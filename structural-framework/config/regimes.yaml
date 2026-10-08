@@ -1,0 +1,43 @@
+# §5 regime classifier. Signals reuse the metric machinery (formula + steps over series in assets.yaml).
+growth:
+  # 6m change in the OECD US CLI; falls back to ISM new orders if the CLI is unavailable at the date.
+  signal:   {id: growth_cli, formula: cli, steps: [{op: diff, months: 6}]}
+  fallback: {id: growth_ism, formula: ism_new_orders, steps: [{op: diff, months: 6}]}
+inflation:
+  # Core PCE 6m annualized minus 12m YoY. Positive = Rising.
+  signal: {id: inflation_momentum, formula: core_pce, steps: [{op: annualized_pct_change, months: 6}, {op: minus_series, formula: core_pce, steps: [{op: pct_change, months: 12}]}]}
+real_rates:
+  level:  {id: real_10y_level, formula: real_10y}
+  change: {id: real_10y_change, formula: real_10y, steps: [{op: diff, months: 6}]}
+  restrictive_level: 1.5             # > 1.5% and rising over 6m
+  easy_level: 0.5                    # spec gap: below 0.5% is Easy (docs/spec_gaps.md)
+fdi:
+  # §5.2: equal-weighted mean of percentile scores (0-1). direction -1 inverts the percentile.
+  inputs:
+    - {id: fdi_deficit, formula: -fed_surplus_gdp, direction: 1}
+    - {id: fdi_interest, formula: interest_outlays / receipts, direction: 1}
+    - {id: fdi_fed_bs, formula: fed_assets, steps: [{op: pct_change, months: 12}], direction: -1}
+    - {id: fdi_debt_public, formula: debt_public, steps: [{op: pct_change, months: 12}], direction: 1}
+  fiscal_led_above: 0.6
+  monetary_led_below: 0.4
+global_order:
+  # Mean of these metric scores (1-5); invert: true uses 6 - score. Below the threshold = Fragmenting.
+  metrics:
+    - {id: usd_reserve}
+    - {id: usd_swift}
+    - {id: usd_foreign_ust}
+    - {id: au_cb_demand, invert: true}
+  fragmenting_below: 3.0             # spec gap (docs/spec_gaps.md)
+
+# §5.3 priors only. Replace with empirical ranks after §9.2, and log both versions in the changelog.
+# USD here is USD_FIAT.
+prior_matrix:
+  goldilocks:        {EQ: 5, AU: 2, BTC: 4, EN: 3, USD: 2}
+  reflation:         {EQ: 4, AU: 4, BTC: 4, EN: 5, USD: 2}
+  stagflation:       {EQ: 1, AU: 5, BTC: 2, EN: 4, USD: 3}
+  deflationary_bust: {EQ: 2, AU: 3, BTC: 1, EN: 1, USD: 5}
+
+modifiers:
+  fiscal_led:  {AU: 0.5, BTC: 0.5}
+  restrictive: {AU: -0.5, BTC: -0.5, EQ: -0.5}
+  fragmenting: {AU: 0.5, USD: -0.5}

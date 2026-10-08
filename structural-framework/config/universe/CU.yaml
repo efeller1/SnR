@@ -1,0 +1,20 @@
+# §13.2 example admission file, as given in SPEC.md. `python -m sf universe` compares the recorded
+# decision with the tier the tests imply.
+id: CU
+name: Copper
+tier: candidate
+mechanism: >
+  Electrification and grid build-out need copper, with no easy substitute at scale;
+  new mines take 10+ years to develop.
+breaks_if:
+  - Substitution (e.g., aluminum) gains share at scale
+  - Demand from China construction collapses without offsetting grid demand
+tests:
+  A1: pass
+  A2: pass
+  A3: {years_of_data: 60, countries: [US, UK], result: pass}
+  A4: {vehicles: [HG futures, CPER, COPX], result: pass}
+  max_corr_vs_premier: {asset: EN, value: 0.55}
+decision: satellite
+decision_date: 2026-10-08
+notes: Re-test after 3 years of live scores.

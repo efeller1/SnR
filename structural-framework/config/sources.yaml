@@ -1,0 +1,16 @@
+# Download endpoints. Read by src/sf/ingest/*. Change here, not in code.
+fred:
+  graph_csv: https://fred.stlouisfed.org/graph/fredgraph.csv?id={id}
+  api_observations: https://api.stlouisfed.org/fred/series/observations
+  api_key_env: FRED_API_KEY
+shiller:
+  url: https://img1.wsimg.com/blobby/go/e5e77e0b-59d1-44d9-ab25-4763ac982e53/downloads/ie_data.xls
+  sheet: Data
+  header_row: 7
+  columns: {date: 0, real_earnings: 10, cape: 12}
+  # Shiller's monthly earnings lag the price data; treat them as known 6 months after the month.
+  lag_months: {real_earnings: 6, cape: 1}
+prices:
+  start: "1988-01-01"
+  manual_dir: data/manual/prices        # <id>.csv (date,value) overrides the download
+history_start: "1990-01-31"             # §10 M1: processed panel 1990-present

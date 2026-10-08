@@ -1,4 +1,11 @@
-# SnR: screening for Natera-like stocks
+# SnR
+
+This repo holds two projects:
+
+- **The Natera-like stock screen** (below, in `snr/`).
+- **The Structural Framework** (`structural-framework/`): a scored, layered framework for investing alongside structural economic trends. See `structural-framework/README.md` and `structural-framework/SPEC.md`.
+
+## SnR: screening for Natera-like stocks
 
 This is a point-in-time screen for US stocks that look like Natera (NTRA) did in 2022–23. It looks for:
 

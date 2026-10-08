@@ -1,0 +1,7 @@
+# §14 control assets. LTB and CASH are scored in assets.yaml (group: control). The rest need data
+# before they can be added there; proposed proxies below (M9).
+pending:
+  AIR:      {name: Airlines, proxy: JETS / S&P 500 airlines sub-industry, needs: [sector capex, ROIC, prices]}
+  TEL:      {name: Telecom carriers, proxy: S&P 500 telecom carriers (T, VZ), needs: [capex / depreciation, prices]}
+  EMFX:     {name: EM currencies basket, proxy: CEW or JP Morgan ELMI+, needs: [prices, reserve data]}
+  UTIL_OLD: {name: Pre-2020 regulated utilities, proxy: XLU constituents as of 2019 (fixed list), needs: [prices, allowed ROE]}

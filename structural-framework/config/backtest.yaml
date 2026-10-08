@@ -1,0 +1,22 @@
+# §9 testing protocol.
+horizons_months: [1, 3, 6, 12]
+pass_bar:                    # §9.1 default
+  horizon_months: 12
+  min_ic: 0.05
+  min_t: 2.0
+holdout_years: 5             # §9.5 final holdout, never touched during development
+oos_fraction: 0.33           # spec gap: last third of the development period is "out of sample" for §9.1
+walkforward_first_train_years: 10
+quintiles: 5
+controls:                    # §14 pass criteria
+  min_share_months_below: 0.70
+  forward_years: 5
+benchmarks:                  # §9.3
+  sixty_forty: {EQ: 0.6, BOND: 0.4}
+  sp500: {EQ: 1.0}
+bond_series: agg             # bond leg of 60/40 (series id in assets.yaml)
+cash_series: tbill_3m        # cash return for the USD sleeve and Sharpe (annual %, FRED TB3MS)
+sensitivity:                 # §9.5 parameter sensitivity grid
+  window_years: [5, 10, 15]
+  threshold_shift: [-0.2, 0.0, 0.2]
+  k: [0.25, 0.5, 0.75, 1.0]
