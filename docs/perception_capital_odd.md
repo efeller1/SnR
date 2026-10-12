@@ -9,6 +9,8 @@ Each item is tagged with where it comes from:
 
 Items assume a US adviser. If Perception launches under a regulatory host or platform (as Palinuro did) or outside the US, swap in the host's or local equivalents. The article says allocators still judge a hosted manager against a firm with its own licence.
 
+The full checklist across every issue of the publication is in [`perception_capital_checklist.md`](perception_capital_checklist.md). It adds items from the 17 Sep DDQ issue, such as evidence logs, the alternative data policy and firm- and fund-level insurance.
+
 **The benchmark from the article:** an allocator sends 20 questions at once, and you answer within an hour with documents attached, sent by someone other than the CIO.
 
 ---
