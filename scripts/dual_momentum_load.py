@@ -1,7 +1,7 @@
 import openpyxl, pandas as pd
 F='/root/.claude/uploads/ba536949-1b86-5e29-81a6-20c0ae4afb5b/c202c99c-Model_Backtest_20260304214422.xlsx'
-def load():
-    rows=list(openpyxl.load_workbook(F,data_only=True).active.iter_rows(values_only=True))
+def load(path=F):
+    rows=list(openpyxl.load_workbook(path,data_only=True).active.iter_rows(values_only=True))
     i=next(k for k,r in enumerate(rows) if r[0]=='Monthly Returns')
     out=[]
     for r in rows[i+3:]:
