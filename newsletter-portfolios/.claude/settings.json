@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["WebSearch", "WebFetch", "Write(memos/**)", "Edit(memos/**)"],
+    "deny": ["Edit(portfolios/**)", "Write(portfolios/**)"]
+  }
+}
